@@ -6,7 +6,7 @@ import { PencilIcon, EraserIcon, UndoIcon, RedoIcon, TrashIcon, XIcon, UsersIcon
 import { useRouter } from 'next/navigation';
 
 // FIXED: Corrected the function signature
-export function Whiteboard() {
+export default  function Whiteboard() {
     const router = useRouter()
      const handleHome = () => {
     router.push('/home');
