@@ -1,5 +1,5 @@
 'use client';
-import React, { cloneElement } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -7,15 +7,20 @@ import {
   CalendarIcon,
   BookOpenIcon,
   WalletIcon,
-  UserIcon
+  UserIcon,
+  LucideIcon
 } from 'lucide-react';
 
-const navItems = [
-  { href: '/home', label: 'Home', icon: <HomeIcon /> },
-  { href: '/scheduler', label: 'Schedule', icon: <CalendarIcon /> },
-  { href: '/assignments', label: 'Assignments', icon: <BookOpenIcon /> },
-  { href: '/wallet', label: 'Wallet', icon: <WalletIcon /> },
-  { href: '/profile', label: 'Profile', icon: <UserIcon /> }
+const navItems: Array<{
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}> = [
+  { href: '/home', label: 'Home', icon: HomeIcon },
+  { href: '/scheduler', label: 'Schedule', icon: CalendarIcon },
+  { href: '/assignments', label: 'Assignments', icon: BookOpenIcon },
+  { href: '/wallet', label: 'Wallet', icon: WalletIcon },
+  { href: '/profile', label: 'Profile', icon: UserIcon }
 ];
 
 export const Navbar: React.FC = () => {
@@ -24,15 +29,13 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="fixed bottom-0 w-full max-w-md bg-white border-t border-gray-200 py-2 px-4">
       <div className="flex justify-between items-center">
-        {navItems.map(({ href, label, icon }) => {
+        {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
           return (
             <Link href={href} key={label}>
               <span className={`flex flex-col items-center justify-center px-2 py-1 ${isActive ? 'text-[#7c5831]' : 'text-gray-500'}`}>
                 <div className={`p-1 ${isActive ? 'bg-[#c1f52f] rounded-full' : ''}`}>
-                {cloneElement(icon as React.ReactElement<any>, {
-  className: isActive ? 'text-[#321210]' : 'text-gray-500'
-})}
+                  <Icon className={`h-6 w-6 ${isActive ? 'text-[#321210]' : 'text-gray-500'}`} />
                 </div>
                 <span className="text-xs mt-1">{label}</span>
               </span>
