@@ -82,6 +82,7 @@ export default function Home() {
       </div>
     );
   }
+  
 
   const { user, profile } = userData;
   const isStudent = user.role === 'student';

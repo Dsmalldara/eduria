@@ -26,39 +26,70 @@ interface UserDataType {
   profile: Profile;
 }
 
-
-export default  function Assignments(){
+export default function Assignments() {
   const [userData, setUserData] = useState<UserDataType | null>(null);
-    const [loading, setLoading] = useState(true);
-  
-   useEffect(() => {
-      const fetchUserData = async () => {
-        try {
-           const email = localStorage.getItem("userEmail");
-          const response = await fetch('/api/user-data', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-          });
-  
-          if (response.ok) {
-            const data = await response.json();
-            setUserData(data);
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('pending'); // Default value
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Check if we're on the client side
+        if (typeof window === 'undefined') return;
+        
+        const email = localStorage.getItem("userEmail");
+        if (!email) {
           setLoading(false);
+          return;
         }
-      };
-  
-      fetchUserData();
-    }, []);
-      const { user } = userData as UserDataType
-  const userType = user.role 
-  const [activeTab, setActiveTab] = useState(userType === 'student' ? 'pending' : 'created');
+        
+        const response = await fetch('/api/user-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+          // Set activeTab after userData is loaded
+          setActiveTab(data.user.role === 'student' ? 'pending' : 'created');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show error state if no userData
+  if (!userData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-red-500">Failed to load user data</div>
+      </div>
+    );
+  }
+
+  // Now it's safe to destructure
+  const { user } = userData;
+  const userType = user.role;
+
 
     if (loading) {
     return (
