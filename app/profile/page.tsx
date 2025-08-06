@@ -90,6 +90,23 @@ export default function Profile() {
   }
 
   const { user, profile } = userData;
+
+
+      if (loading) {
+    return (
+      <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+        <div className="text-[#321210]">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+        <div className="text-[#321210]">Unable to load  assignment</div>
+      </div>
+    );
+  }
   const isStudent = user.role === 'student';
   const isTutor = user.role === 'tutor';
   

@@ -29,7 +29,7 @@ interface UserDataType {
 export default function Notifications() {
     const [userData, setUserData] = useState<UserDataType | null>(null);
       const [loading, setLoading] = useState(true);
-    
+      const [activeTab, setActiveTab] = useState('all');
      useEffect(() => {
         const fetchUserData = async () => {
           try {
@@ -55,9 +55,18 @@ export default function Notifications() {
     
         fetchUserData();
       }, []);
-        const { user } = userData as UserDataType
-    const userType = user.role 
-  const [activeTab, setActiveTab] = useState('all');
+         // Show error state if no userData
+  if (!userData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-red-500">Failed to load user data</div>
+      </div>
+    );
+  }
+
+  // Now it's safe to destructure
+  const { user } = userData;
+const userType = userData.user.role
 
       if (loading) {
     return (
