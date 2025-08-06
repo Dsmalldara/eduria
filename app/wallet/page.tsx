@@ -121,7 +121,7 @@ export default function Wallet() {
               <span>+{profile.assessmentScore || 85}% learning progress this month</span>
             </div>
             
-            <Button variant="default" size="md" className="w-full bg-[#321210] hover:bg-[#321210]/90">
+            <Button variant="default"  className="w-full bg-[#321210] hover:bg-[#321210]/90">
               Earn More Credits
             </Button>
           </div>
@@ -233,7 +233,7 @@ export default function Wallet() {
         <p className="text-3xl font-bold mb-1">${tutorEarnings.toLocaleString()}.00</p>
         <p className="text-sm text-white/80">Available for payout</p>
         <div className="mt-4">
-          <Button variant="default" size="md" className="w-full">
+          <Button variant="default" className="w-full">
             Withdraw Funds
           </Button>
         </div>

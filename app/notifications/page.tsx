@@ -1,14 +1,79 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from "@/components/ui/card"
 import { BellIcon, ClockIcon, BookOpenIcon, CreditCardIcon, CheckCircleIcon, SettingsIcon } from 'lucide-react';
-interface NotificationsProps {
-  userType: string;
+
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 }
-export default function Notifications({
-  userType
-}:NotificationsProps) {
+
+interface Profile {
+  id: string;
+  userId: string;
+  bio?: string;
+  subjects: string[];
+  certified?: boolean;
+  experience?: string;
+  assessmentScore?: number;
+}
+
+interface UserDataType {
+  user: User;
+  profile: Profile;
+}
+
+export default function Notifications() {
+    const [userData, setUserData] = useState<UserDataType | null>(null);
+      const [loading, setLoading] = useState(true);
+    
+     useEffect(() => {
+        const fetchUserData = async () => {
+          try {
+             const email = localStorage.getItem("userEmail");
+            const response = await fetch('/api/user-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email }),
+            });
+    
+            if (response.ok) {
+              const data = await response.json();
+              setUserData(data);
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchUserData();
+      }, []);
+        const { user } = userData as UserDataType
+    const userType = user.role 
   const [activeTab, setActiveTab] = useState('all');
+
+      if (loading) {
+    return (
+      <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+        <div className="text-[#321210]">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+        <div className="text-[#321210]">Unable to load  assignment</div>
+      </div>
+    );
+  }
   return <div className="p-5 bg-[#f9f9f9]">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-[#321210]">Notifications</h2>

@@ -1,16 +1,83 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from  "@/components/ui/card"
 import { Button } from  "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, ClockIcon, UsersIcon } from 'lucide-react';
-interface SchedulerProps {
-  userType: string;
-}
-export default function  Scheduler ({
-  userType
-}:SchedulerProps){
+
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  }
+  
+  interface Profile {
+    id: string;
+    userId: string;
+    bio?: string;
+    subjects: string[];
+    certified?: boolean;
+    experience?: string;
+    assessmentScore?: number;
+  }
+  
+  interface UserDataType {
+    user: User;
+    profile: Profile;
+  }
+  
+export default function  Scheduler (){
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  
+
+    const [userData, setUserData] = useState<UserDataType | null>(null);
+      const [loading, setLoading] = useState(true);
+    
+     useEffect(() => {
+        const fetchUserData = async () => {
+          try {
+             const email = localStorage.getItem("userEmail");
+            const response = await fetch('/api/user-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email }),
+            });
+    
+            if (response.ok) {
+              const data = await response.json();
+              setUserData(data);
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchUserData();
+      }, []);
+        const { user } = userData as UserDataType
+    const userType = user.role 
+  
+      if (loading) {
+      return (
+        <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+          <div className="text-[#321210]">Loading...</div>
+        </div>
+      );
+    }
+  
+    if (!userData) {
+      return (
+        <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+          <div className="text-[#321210]">Unable to load  assignment</div>
+        </div>
+      );
+    }
   // Generate dates for the week view
   const getDaysOfWeek = () => {
     const days = [];

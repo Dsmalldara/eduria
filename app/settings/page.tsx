@@ -1,18 +1,88 @@
 "use client "
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, ToggleLeft, ToggleRight } from 'lucide-react';
 
-interface SettingsProps {
-  userType: string;
-  setUserType: (type: string) => void;
-}
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  }
+  
+  interface Profile {
+    id: string;
+    userId: string;
+    bio?: string;
+    subjects: string[];
+    certified?: boolean;
+    experience?: string;
+    assessmentScore?: number;
+  }
+  
+  interface UserDataType {
+    user: User;
+    profile: Profile;
+  }
+  
 
-export default function Settings({ userType, setUserType }: SettingsProps) {
-  const handleUserTypeToggle = () => {
-    setUserType(userType === 'student' ? 'tutor' : 'student');
-  };
+export default function Settings() {
+
+  
+    const [userType, setUserType] = useState('');
+    const [userData, setUserData] = useState<UserDataType | null>(null);
+      const [loading, setLoading] = useState(true);
+    
+     useEffect(() => {
+        const fetchUserData = async () => {
+          try {
+             const email = localStorage.getItem("userEmail");
+            const response = await fetch('/api/user-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email }),
+            });
+    
+            if (response.ok) {
+              const data = await response.json();
+              setUserData(data);
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchUserData();
+      }, []);
+        const { user } = userData as UserDataType
+   setUserType(user.role)
+  
+    const handleUserTypeToggle = () => {
+  setUserType(userType === 'student' ? 'tutor' : 'student');
+};
+      if (loading) {
+      return (
+        <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+          <div className="text-[#321210]">Loading...</div>
+        </div>
+      );
+    }
+  
+    if (!userData) {
+      return (
+        <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+          <div className="text-[#321210]">Unable to load  assignment</div>
+        </div>
+      );
+    }
+ 
+
+
 
   return (
     <div className="p-5 bg-gray-50">

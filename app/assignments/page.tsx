@@ -71,7 +71,7 @@ export default  function Assignments(){
   if (!userData) {
     return (
       <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
-        <div className="text-[#321210]">Unable to load user data</div>
+        <div className="text-[#321210]">Unable to load  assignment</div>
       </div>
     );
   }
