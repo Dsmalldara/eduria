@@ -30,10 +30,9 @@ export const Navbar: React.FC = () => {
             <Link href={href} key={label}>
               <span className={`flex flex-col items-center justify-center px-2 py-1 ${isActive ? 'text-[#7c5831]' : 'text-gray-500'}`}>
                 <div className={`p-1 ${isActive ? 'bg-[#c1f52f] rounded-full' : ''}`}>
-                  {cloneElement(icon as React.ReactElement, {
-                   
-                    className: isActive ? 'text-[#321210]' : 'text-gray-500'
-                  })}
+                {cloneElement(icon as React.ReactElement<any>, {
+  className: isActive ? 'text-[#321210]' : 'text-gray-500'
+})}
                 </div>
                 <span className="text-xs mt-1">{label}</span>
               </span>
