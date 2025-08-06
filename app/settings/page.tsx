@@ -59,6 +59,14 @@ export default function Settings() {
     
         fetchUserData();
       }, []);
+        // Show error state if no userData SECOND
+  if (!userData) {
+    return (
+      <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
+        <div className="text-[#321210]">Unable to load assignment</div>
+      </div>
+    );
+  }
         const { user } = userData as UserDataType
    setUserType(user.role)
   
