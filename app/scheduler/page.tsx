@@ -74,7 +74,7 @@ export default function  Scheduler (){
     if (!userData) {
       return (
         <div className="p-5 bg-[#f9f9f9] flex items-center justify-center min-h-screen">
-          <div className="text-[#321210]">Unable to load  assignment</div>
+          <div className="text-[#321210]">Unable to load  schedules</div>
         </div>
       );
     }

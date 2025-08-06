@@ -8,7 +8,7 @@ import {
   ArrowDownLeftIcon, 
   DollarSignIcon, 
   BookOpenIcon,
-  ClockIcon,
+
   TrendingUpIcon,
   GiftIcon,
   ShieldCheckIcon,
