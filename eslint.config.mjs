@@ -23,8 +23,14 @@ const eslintConfig = [
       "prisma/generated/**",
       "**/generated/**",
       "**/*.generated.*",
-      // Common generated file patterns
+      // More specific Prisma patterns
       "**/runtime/**",
+      "**/library.d.ts",
+      "**/@prisma/**",
+      "**/prisma/client/**",
+      // Any file with 'prisma' in the path that's generated
+      "**/prisma/**/runtime/**",
+      "**/prisma/**/library.d.ts"
     ]
   },
   {
@@ -34,7 +40,10 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-this-alias": "off"
+      "@typescript-eslint/no-this-alias": "off",
+      // Add these rules to handle Prisma-generated code
+      "@typescript-eslint/no-unsafe-function-type": "off",
+      "@typescript-eslint/no-wrapper-object-types": "off"
     }
   }
 ];
