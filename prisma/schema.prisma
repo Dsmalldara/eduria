@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://neondb_owner:npg_poaj0NwzKQ5x@ep-curly-queen-afbnrdfa-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+}
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  role          String   @default("user")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime @db.Timestamp(6)
+  token     String   @unique
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+  ipAddress String?
+  userAgent String?
+  userId    String
+
+  @@index([token])
+  @@index([userId], map: "session_user_id_idx")
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamp(6)
+  refreshTokenExpiresAt DateTime? @db.Timestamp(6)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt             DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([providerId, accountId], map: "account_provider_idx")
+  @@index([userId], map: "account_user_id_idx")
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamp(6)
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("verification")
+}
+
+model assignment {
+  id           String       @id
+  classId      String
+  title        String
+  description  String?
+  resourceUrl  String?
+  submittedUrl String?
+  submittedAt  DateTime?    @db.Timestamp(6)
+  grade        Int?
+  createdAt    DateTime?    @default(now()) @db.Timestamp(6)
+  Renamedclass Renamedclass @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model attendance {
+  id           String       @id
+  classId      String
+  studentId    String
+  status       String?      @default("present")
+  checkedInAt  DateTime?    @db.Timestamp(6)
+  createdAt    DateTime?    @default(now()) @db.Timestamp(6)
+  Renamedclass Renamedclass @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([classId], map: "attendance_class_idx")
+}
+
+/// This model has been renamed to 'Renamedclass' during introspection, because the original name 'class' is reserved.
+model Renamedclass {
+  id            String         @id
+  subject       String
+  tutorId       String
+  studentId     String?
+  scheduleAt    DateTime       @db.Timestamp(6)
+  status        String         @default("scheduled")
+  createdAt     DateTime?      @default(now()) @db.Timestamp(6)
+  assignment    assignment[]
+  attendance    attendance[]
+  class_summary class_summary?
+
+  @@index([studentId], map: "class_student_idx")
+  @@index([tutorId], map: "class_tutor_idx")
+  @@map("class")
+}
+
+model class_summary {
+  id           String       @id
+  classId      String       @unique
+  summary      String?
+  generatedBy  String?      @default("ai")
+  createdAt    DateTime?    @default(now()) @db.Timestamp(6)
+  Renamedclass Renamedclass @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model notification {
+  id        String    @id
+  userId    String
+  title     String
+  message   String?
+  seen      Boolean?  @default(false)
+  createdAt DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([userId], map: "notification_user_idx")
+}
+
+model profile {
+  id              String    @id
+  userId          String    @unique
+  bio             String?
+  subjects        String[]
+  certified       Boolean?  @default(false)
+  experience      String?
+  assessmentScore Int?
+  createdAt       DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([userId], map: "profile_user_idx")
+}
+
+model transaction {
+  id          String    @id
+  walletId    String
+  amount      Float     @db.Real
+  type        String
+  description String?
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  wallet      wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([walletId], map: "transaction_wallet_idx")
+}
+
+model wallet {
+  id          String        @id
+  userId      String        @unique
+  balance     Float         @default(0) @db.Real
+  createdAt   DateTime?     @default(now()) @db.Timestamp(6)
+  transaction transaction[]
+
+  @@index([userId], map: "wallet_user_idx")
+}
