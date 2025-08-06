@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
               <span className={`flex flex-col items-center justify-center px-2 py-1 ${isActive ? 'text-[#7c5831]' : 'text-gray-500'}`}>
                 <div className={`p-1 ${isActive ? 'bg-[#c1f52f] rounded-full' : ''}`}>
                   {cloneElement(icon as React.ReactElement, {
-                    size: 20,
+                   
                     className: isActive ? 'text-[#321210]' : 'text-gray-500'
                   })}
                 </div>
