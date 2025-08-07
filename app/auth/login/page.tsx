@@ -6,80 +6,129 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { signIn } from "@/lib/actions"
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
+import { useRouter } from "next/navigation"
+
+type FormState = {
+  errors?: {
+    email?: string[]
+    password?: string[]
+  }
+  message?: string
+} | undefined
 
 export default function LoginPage() {
-  const [state, action, pending] = useActionState(signIn, undefined)
+  const [state, setState] = useState<FormState>()
+  const [pending, setPending] = useState(false)
+  const router = useRouter()
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setPending(true)
+    setState(undefined)
+
+    const formData = new FormData(event.currentTarget)
     const email = formData.get("email") as string
-    
+
     // Store email in localStorage before submitting
     if (email && email.trim()) {
       localStorage.setItem("userEmail", email.trim())
       console.log("Stored email in localStorage:", email.trim())
     }
-    
-    // Call the original action
-    return action(formData)
+
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        if (data.redirectTo) {
+          router.push(data.redirectTo)
+        }
+      } else {
+        setState(data)
+      }
+    } catch (error) {
+      console.error('SignIn error:', error)
+      setState({
+        message: "Network error. Please try again."
+      })
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
-    <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
-      <form
-        action={handleSubmit}
-        className="bg-muted m-auto h-fit w-full max-w-sm overflow-hidden rounded-[calc(var(--radius)+.125rem)] border shadow-md shadow-zinc-950/5 dark:[--color-muted:var(--color-zinc-900)]"
-      >
-        <div className="bg-card -m-px rounded-[calc(var(--radius)+.125rem)] border p-8 pb-6">
-          <div className="text-center">
-            <Link href="/" aria-label="go home" className="mx-auto block w-fit">
-              Eduria
-            </Link>
-            <h1 className="mb-1 mt-4 text-xl font-semibold">Welcome Back</h1>
-            <p className="text-sm">Sign in to your account</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <div className="mx-auto h-12 w-auto flex items-center justify-center">
+            <h1 className="text-3xl font-bold text-blue-600">Eduria</h1>
           </div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Welcome Back
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Sign in to your account
+          </p>
+        </div>
 
-          {state?.message && (
-            <div className="mt-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-950 dark:text-red-400 dark:border-red-800">
-              {state.message}
-            </div>
-          )}
+        {state?.message && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-red-700 text-sm">{state.message}</p>
+          </div>
+        )}
 
-          <div className="mt-6 space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="block text-sm">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address
-              </Label>
-              <Input
-                type="email"
-                required
-                name="email"
+              </label>
+              <input
                 id="email"
-                placeholder="Enter your email"
-                className={state?.errors?.email ? "border-red-500" : ""}
-              />
-              {state?.errors?.email && <p className="text-sm text-red-600">{state.errors.email[0]}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-title text-sm">
-                Password
-              </Label>
-              <Input
-                type="password"
+                name="email"
+                type="email"
+                autoComplete="email"
                 required
-                name="password"
-                id="password"
-                placeholder="Enter your password"
-                className={state?.errors?.password ? "border-red-500" : ""}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Enter your email"
               />
-              {state?.errors?.password && <p className="text-sm text-red-600">{state.errors.password[0]}</p>}
+              {state?.errors?.email && (
+                <p className="mt-1 text-sm text-red-600">{state.errors.email[0]}</p>
+              )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Signing In..." : "Sign In"}
-            </Button>
+            <div className="mt-4">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Enter your password"
+              />
+              {state?.errors?.password && (
+                <p className="mt-1 text-sm text-red-600">{state.errors.password[0]}</p>
+              )}
+            </div>
           </div>
+
+          <div>
+            <button
+              type="submit"
+              disabled={pending}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {pending ? "Signing in..." : "Sign In"}
+            </button>
         </div>
 
         <div className="p-3">
@@ -91,6 +140,7 @@ export default function LoginPage() {
           </p>
         </div>
       </form>
-    </section>
+      </div>
+      </div>
   )
 }
