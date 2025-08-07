@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
   // If accessing protected route without auth, redirect to login
   if (isProtectedRoute && !hasAuth) {
     console.log("❌ No auth for protected route, redirecting to login")
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+    return NextResponse.redirect(new URL("/auth/signup", request.url))
   }
 
   console.log("✅ Allowing access")
