@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server"
 
 import { APIError } from "better-auth/api"
@@ -88,8 +87,8 @@ export async function signUp(state: FormState, formData: FormData): Promise<Form
     // Only set cookie if signup was successful
     const cookieStore = cookies()
     ;(await cookieStore).set("better-auth.session_token", "authenticated", {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: true,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -207,8 +206,8 @@ export async function signIn(state: FormState, formData: FormData): Promise<Form
     // Set a simple auth token in cookies
     const cookieStore = cookies()
     ;(await cookieStore).set("better-auth.session_token", "authenticated", {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: true,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
