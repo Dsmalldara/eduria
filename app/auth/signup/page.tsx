@@ -17,6 +17,7 @@ type FormState = {
 export default function SignUpPage() {
   const [state, setState] = useState<FormState>()
   const [pending, setPending] = useState(false)
+  const [showRedirectToast, setShowRedirectToast] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -43,7 +44,11 @@ export default function SignUpPage() {
 
       if (response.ok) {
         if (data.redirectTo) {
-          router.push(data.redirectTo)
+          setShowRedirectToast(true)
+          setPending(false)
+          setTimeout(() => {
+            router.push(data.redirectTo)
+          }, 1500)
         }
       } else {
         setState(data)
@@ -76,6 +81,14 @@ export default function SignUpPage() {
         {state?.message && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
             <p className="text-red-700 text-sm">{state.message}</p>
+          </div>
+        )}
+
+        {/* Redirect Toast */}
+        {showRedirectToast && (
+          <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>Account created! Redirecting...</span>
           </div>
         )}
 

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({ 
         success: true, 
-        redirectTo: "/home" 
+        redirectTo: "/onboarding" 
       }, { status: 200 })
 
     } catch (error: unknown) {
