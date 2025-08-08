@@ -2,10 +2,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ChevronRightIcon, UserIcon, BookOpenIcon, AwardIcon, CheckIcon } from "lucide-react"
-import { saveOnboardingData } from "@/lib/actions"
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0)
@@ -13,6 +13,9 @@ export default function OnboardingPage() {
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const [showRedirectToast, setShowRedirectToast] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const subjects = [
     "Mathematics",
@@ -40,10 +43,38 @@ export default function OnboardingPage() {
       setStep(2)
     } else if (step === 2) {
       setLoading(true)
+      setError(null)
+      
       try {
-        await saveOnboardingData(selectedType, selectedSubjects, userEmail)
+        const response = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userType: selectedType,
+            subjects: selectedSubjects,
+            email: userEmail
+          }),
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          if (data.redirectTo) {
+            setShowRedirectToast(true)
+            setLoading(false)
+            setTimeout(() => {
+              router.push(data.redirectTo)
+            }, 1500)
+          }
+        } else {
+          setError(data.error || "Failed to save onboarding data")
+          setLoading(false)
+        }
       } catch (error) {
         console.error("Error saving onboarding data:", error)
+        setError("Network error. Please try again.")
         setLoading(false)
       }
     }
@@ -59,6 +90,21 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      {/* Redirect Toast */}
+      {showRedirectToast && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          <span>Profile saved! Redirecting...</span>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          {error}
+        </div>
+      )}
+
       {/* Logo and Header */}
       <div className="p-6 text-center">
         <div className="h-16 w-16 bg-[#c1f52f] rounded-full flex items-center justify-center mx-auto mb-4">
